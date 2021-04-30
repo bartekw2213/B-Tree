@@ -15,6 +15,7 @@ class BTreeNode {
         void InsertToThisNotFullNode(int newKey);
         void Print() const;
         bool Contains(const int key) const;
+        void Save() const;
     private:
         void AddNewKey(int newKey);
         void AddNewKeyToChild(int newKey);

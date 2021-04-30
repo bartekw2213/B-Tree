@@ -103,3 +103,18 @@ bool BTreeNode::Contains(const int key) const {
     return false; 
 }
 
+void BTreeNode::Save() const {
+    int i;
+    std::cout << "( ";
+    for(i = 0; i < keysNum; i++) {
+        if(!isLeaf)
+            children[i]->Save();
+        std::cout << keys[i] << " ";
+    }
+
+    if(!isLeaf)
+        children[i]->Save();
+
+    std::cout << ") ";
+}
+

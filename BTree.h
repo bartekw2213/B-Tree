@@ -11,6 +11,7 @@ class BTree {
         void Add(const int key);
         void Search(const int key) const;
         void Print() const;
+        void Save() const;
     private:
         void Add_FirstElement(const int key);
         void Add_ToFullRoot(const int key);
