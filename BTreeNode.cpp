@@ -11,10 +11,11 @@ BTreeNode::BTreeNode(int order, bool isLeaf) {
 }
 
 BTreeNode::~BTreeNode() {
-    for(int i = 0; i < order; i++)
-        delete children[i];
-    delete children;
-    delete keys;
+    if(!isLeaf)
+        for(int i = 0; i < keysNum + 1; i++)
+            delete children[i];
+    delete[] children;
+    delete[] keys;
 }
 
 void BTreeNode::SplitChild(int childIndex, BTreeNode* childToBeSplitted) {
