@@ -40,6 +40,12 @@ void BTree::Search(const int key) const {
     std::cout << key << ' ' << sign << '\n';
 }
 
+void BTree::Load() {
+    getchar();
+    root = new BTreeNode(order, true);
+    root->LoadNode();
+}
+
 void BTree::Save() const {
     std::cout << order << '\n';
     root->Save();

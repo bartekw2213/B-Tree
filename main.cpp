@@ -21,6 +21,7 @@ int main() {
         case 'A': tree->Add(ScanValue()); break;
         case '?': tree->Search(ScanValue()); break;
         case 'P': tree->Print(); break;
+        case 'L': tree = new BTree(ScanValue()); tree->Load(); break;
         case 'S': tree->Save(); break;
         case 'X': quit = true; break;
         }

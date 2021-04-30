@@ -16,6 +16,7 @@ class BTreeNode {
         void Print() const;
         bool Contains(const int key) const;
         void Save() const;
+        void LoadNode();
     private:
         void AddNewKey(int newKey);
         void AddNewKeyToChild(int newKey);

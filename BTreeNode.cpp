@@ -118,3 +118,18 @@ void BTreeNode::Save() const {
     std::cout << ") ";
 }
 
+void BTreeNode::LoadNode() {
+    char input = getchar();
+
+    while(input != '\n' && input != ')') {
+        if(input == '(') {
+            isLeaf = false;
+            BTreeNode* newNode = new BTreeNode(order, true);
+            newNode->LoadNode();
+            children[keysNum] = newNode;
+        } else if(input >= '0' && input <= '9') {
+            keys[keysNum++] = (int)(input - '0');
+        }
+        input = getchar();
+    }
+}
