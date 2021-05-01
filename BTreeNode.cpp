@@ -30,12 +30,12 @@ void BTreeNode::SplitChild(int childIndex, BTreeNode* childToBeSplitted) {
             newChild->children[i] = childToBeSplitted->children[i + order];
 
     // zrob miejsce i wstaw nowe dziecko do obecnego wezla
-    for(int i = keysNum; i >= childIndex; i--)
+    for(int i = keysNum; i > childIndex; i--)
         children[i+1] = children[i];
     children[childIndex + 1] = newChild;
 
     // zrob miejsce i wstaw nowy klucz do obecnego wezla
-    for(int i = order - 1; i >= childIndex; i--)
+    for(int i = keysNum - 1; i >= childIndex; i--)
         keys[i+1] = keys[i];
     keys[childIndex] = childToBeSplitted->keys[order - 1];
 
