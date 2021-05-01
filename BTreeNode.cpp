@@ -93,19 +93,17 @@ void BTreeNode::Print() const {
 }
 
 bool BTreeNode::Contains(const int key) const {
-    int i;
+    int i = 0;
 
-    for(i = 0; i < keysNum; i++) {
-        if(!isLeaf && children[i]->Contains(key))
-            return true;
-        if(keys[i] == key)
-            return true;
-    }
-
-    if(!isLeaf && children[i]->Contains(key))
+    while(i < keysNum && keys[i] < key)
+        i++;
+    
+    if(keys[i] == key)
         return true;
-
-    return false; 
+    else if(!isLeaf)
+        return children[i]->Contains(key);
+    
+    return false;
 }
 
 void BTreeNode::Save() const {
