@@ -68,10 +68,14 @@ void BTreeNode::AddNewKeyToChild(int newKey) {
     while(i >= 0 && keys[i] > newKey)
         i--;
 
-    if(children[i+1]->keysNum == (2 * order - 1))
-        SplitChild(i+1, children[i+1]);
+    int indexOfChildThatGetNewKey = i + 1;
 
-    int indexOfChildThatGetNewKey = (keys[i+1] < newKey) ? (i + 1) : i;
+    if(children[i+1]->keysNum == (2 * order - 1)) {
+        SplitChild(i+1, children[i+1]);
+        if(keys[i+1] < newKey)
+            indexOfChildThatGetNewKey++;
+    }
+
     children[indexOfChildThatGetNewKey]->InsertToThisNotFullNode(newKey);
 }
 
