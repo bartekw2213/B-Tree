@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include "StringToIntConvereter.h"
 
 class BTreeNode {
     private:

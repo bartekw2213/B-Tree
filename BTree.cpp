@@ -41,6 +41,8 @@ void BTree::Search(const int key) const {
 }
 
 void BTree::Load() {
+    // zabranie z wejscia '\n' i znaku nawiasu rozpoczynajacego drzewo
+    getchar();
     getchar();
     root = new BTreeNode(order, true);
     root->LoadNode();

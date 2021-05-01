@@ -122,6 +122,11 @@ void BTreeNode::Save() const {
 }
 
 void BTreeNode::LoadNode() {
+    // Klasa odpowiadajaca za wczytywaniu znaku za znakiem i przekonwertowaniu
+    // otrzymanego lancuchu na liczbe
+    StringToIntConverter stringInt;
+    bool previousCharWasNumber = false;
+
     char input = getchar();
 
     while(input != '\n' && input != ')') {
@@ -130,8 +135,12 @@ void BTreeNode::LoadNode() {
             BTreeNode* newNode = new BTreeNode(order, true);
             newNode->LoadNode();
             children[keysNum] = newNode;
-        } else if(input >= '0' && input <= '9') {
-            keys[keysNum++] = (int)(input - '0');
+        } else if((input >= '0' && input <= '9') || input == '-') {
+            stringInt.AddInt(input);
+            previousCharWasNumber = true;
+        } else if(input == ' ' && previousCharWasNumber) {
+            keys[keysNum++] = stringInt.GetInt();
+            previousCharWasNumber = false;
         }
         input = getchar();
     }
