@@ -36,7 +36,9 @@ void BTree::Print() const {
 }
 
 void BTree::Search(const int key) const {
-    char sign = root->Contains(key) ? '+' : '-';
+    char sign = '+';
+    if(root->Contains(key) == nullptr)
+        sign = '-';
     std::cout << key << ' ' << sign << '\n';
 }
 

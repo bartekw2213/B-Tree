@@ -15,7 +15,7 @@ class BTreeNode {
         void SplitChild(int childIndex, BTreeNode* childToBeSplitted);
         void InsertToThisNotFullNode(int newKey);
         void Print() const;
-        bool Contains(const int key) const;
+        BTreeNode* Contains(const int key);
         void Save() const;
         void LoadNode();
     private:
