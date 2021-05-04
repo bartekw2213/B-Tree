@@ -21,7 +21,7 @@ class BTreeNode {
         void Remove(const int key);
         void RemoveFromLeaf(const int removedKeyIndex);
         void RemoveFromInternalNode(const int removedKeyIndex);
-        static BTreeNode* MergeIntoSingleNode(BTreeNode* firstNode, BTreeNode* secondNode);
+        void MergeIntoSingleNode(int firstNodeIndex, int secondNodeIndex);
     private:
         void AddNewKey(int newKey);
         void AddNewKeyToChild(int newKey);
