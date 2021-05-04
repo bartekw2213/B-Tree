@@ -13,6 +13,7 @@ class BTree {
         void Print() const;
         void Load();
         void Save() const;
+        void Remove(const int key);
     private:
         void Add_FirstElement(const int key);
         void Add_ToFullRoot(const int key);

@@ -18,8 +18,20 @@ class BTreeNode {
         BTreeNode* Contains(const int key);
         void Save() const;
         void LoadNode();
+        void Remove(const int key);
+        void RemoveFromLeaf(const int removedKeyIndex);
+        void RemoveFromInternalNode(const int removedKeyIndex);
+        static BTreeNode* MergeIntoSingleNode(BTreeNode* firstNode, BTreeNode* secondNode);
     private:
         void AddNewKey(int newKey);
         void AddNewKeyToChild(int newKey);
+        void MakeChildNoMinKeysNode(int childIndex);
+        int FindKeyIndex(int key);
+        int FindChildIndexThatCanHaveKey(int key);
+        int FindChildIndex(BTreeNode* child);
+        int GetPredecessor(const int keyIndex);
+        int GetSuccessor(const int keyIndex);
+        void BorrowLargestKeyFromSibling(BTreeNode* child, BTreeNode* sibling);
+        void BorrowSmallestKeyFromSibling(BTreeNode* child, BTreeNode* sibling);
     friend class BTree;
 };

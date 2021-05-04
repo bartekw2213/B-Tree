@@ -11,7 +11,7 @@ BTreeNode::BTreeNode(int order, bool isLeaf) {
 }
 
 BTreeNode::~BTreeNode() {
-    if(!isLeaf)
+    if(!isLeaf && keysNum > 0)
         for(int i = 0; i < keysNum + 1; i++)
             delete children[i];
     delete[] children;
@@ -98,7 +98,7 @@ BTreeNode* BTreeNode::Contains(const int key) {
     while(i < keysNum && keys[i] < key)
         i++;
     
-    if(keys[i] == key)
+    if(keys[i] == key && i < keysNum)
         return this;
     else if(!isLeaf)
         return children[i]->Contains(key);
@@ -144,4 +144,187 @@ void BTreeNode::LoadNode() {
         }
         input = getchar();
     }
+}
+
+void BTreeNode::Remove(const int keyToDelete) {
+    int removedKeyIndex = FindKeyIndex(keyToDelete);
+
+    if(removedKeyIndex != -1) {
+        if(isLeaf)
+            RemoveFromLeaf(removedKeyIndex);
+        else
+            RemoveFromInternalNode(removedKeyIndex);
+        return;
+    } else if(!isLeaf) {
+        int childIndexThatCanHaveKey = FindChildIndexThatCanHaveKey(keyToDelete);
+        bool isThisChildLast = (childIndexThatCanHaveKey == keysNum) ? true : false;
+
+        if(children[childIndexThatCanHaveKey]->keysNum == order - 1)
+            MakeChildNoMinKeysNode(childIndexThatCanHaveKey);
+        
+        // jesli ostatnie dziecko zostalo polaczone z poprzednikiem
+        if(isThisChildLast && childIndexThatCanHaveKey > keysNum)
+            children[childIndexThatCanHaveKey - 1]->Remove(keyToDelete);
+        else
+            children[childIndexThatCanHaveKey]->Remove(keyToDelete);
+    }
+}
+
+void BTreeNode::RemoveFromLeaf(const int removedKeyIndex) {
+    for(int i = removedKeyIndex; i < keysNum - 1; i++)
+        keys[i] = keys[i+1];
+    keysNum--;
+}
+
+void BTreeNode::RemoveFromInternalNode(const int removedKeyIndex) {
+    BTreeNode* leftChild = children[removedKeyIndex];
+    BTreeNode* rightChild = children[removedKeyIndex + 1];
+
+    if(leftChild->keysNum > order - 1) {
+        int predecessor = GetPredecessor(removedKeyIndex);
+        keys[removedKeyIndex] = predecessor;
+        leftChild->Remove(predecessor);
+    } else if(rightChild->keysNum > order - 1) {
+        int successor = GetSuccessor(removedKeyIndex);
+        keys[removedKeyIndex] = successor;
+        rightChild->Remove(successor);
+    } else {
+        leftChild = MergeIntoSingleNode(leftChild, rightChild);
+        leftChild->InsertToThisNotFullNode(keys[removedKeyIndex]);
+        int keyToRemove = keys[removedKeyIndex];
+
+        for(int i = removedKeyIndex; i < keysNum - 1; i++)
+            keys[i] = keys[i+1];
+        for(int i = removedKeyIndex + 1; i < keysNum; i++)
+            children[i] = children[i+1];
+
+        keysNum--;
+        leftChild->Remove(keyToRemove);
+    }
+}
+
+int BTreeNode::GetPredecessor(const int keyIndex) {
+    BTreeNode* current = children[keyIndex];
+    while(!current->isLeaf)
+        current = current->children[current->keysNum];
+    return current->keys[keysNum - 1];
+}
+
+int BTreeNode::GetSuccessor(const int keyIndex) {
+    BTreeNode* current = children[keyIndex+1];
+    while(!current->isLeaf)
+        current = current->children[0];
+    return current->keys[0];
+}
+
+void BTreeNode::MakeChildNoMinKeysNode(int childIndex) {
+    if(childIndex != 0 && children[childIndex-1]->keysNum > order - 1)
+        BorrowLargestKeyFromSibling(children[childIndex], children[childIndex - 1]);
+    else if(childIndex != keysNum && children[childIndex + 1]->keysNum > order - 1)
+        BorrowSmallestKeyFromSibling(children[childIndex], children[childIndex + 1]);
+    else if(childIndex == keysNum) {
+        children[childIndex - 1] = MergeIntoSingleNode(children[childIndex - 1], children[childIndex]);
+        children[childIndex - 1]->InsertToThisNotFullNode(keys[keysNum-1]);
+        keysNum--;
+    } else {
+        int keyMovedToChild = keys[childIndex];
+        children[childIndex] = MergeIntoSingleNode(children[childIndex], children[childIndex+1]);
+
+        for(int i = childIndex + 1; i < keysNum; i++)
+            children[i] = children[i+1];
+        for(int i = childIndex + 1; i < keysNum - 1; i++)
+            keys[i] = keys[i+1];
+
+        children[childIndex]->InsertToThisNotFullNode(keyMovedToChild);
+        keysNum--;
+    }
+}
+
+void BTreeNode::BorrowLargestKeyFromSibling(BTreeNode* childThatGetKey, BTreeNode* childThatGiveKey) {
+    int childThatGetKeyIndex = FindChildIndex(childThatGetKey);
+    
+    for(int i = childThatGetKey->keysNum; i > 0; i--)
+        childThatGetKey->keys[i] = childThatGetKey->keys[i-1];
+    
+    childThatGetKey->keys[0] = keys[childThatGetKeyIndex - 1];
+
+    if(!childThatGetKey->isLeaf)
+        for(int i = childThatGetKey->keysNum + 1; i > 0; i--)
+            childThatGetKey->children[i] = childThatGetKey->children[i-1];
+    
+    if(!childThatGiveKey->isLeaf)
+        childThatGetKey->children[0] = childThatGiveKey->children[childThatGiveKey->keysNum];
+
+    keys[childThatGetKeyIndex - 1] = childThatGiveKey->keys[childThatGiveKey->keysNum - 1];
+
+    childThatGiveKey->keysNum--;
+    childThatGetKey->keysNum++; 
+}
+
+void BTreeNode::BorrowSmallestKeyFromSibling(BTreeNode* childThatGetKey, BTreeNode* childThatGiveKey) {
+    int childThatGetKeyIndex = FindChildIndex(childThatGetKey);
+
+    childThatGetKey->keys[childThatGetKey->keysNum] = keys[childThatGetKeyIndex];
+    childThatGetKey->keysNum++;
+
+    if(!childThatGetKey->isLeaf)
+        childThatGetKey->children[keysNum] = childThatGiveKey->children[0];
+
+    keys[childThatGetKeyIndex] = childThatGiveKey->keys[0];
+
+    for(int i = 0; i < childThatGiveKey->keysNum - 1; i++)
+        childThatGiveKey->keys[i] - childThatGiveKey->keys[i+1];
+
+    if(!childThatGiveKey->isLeaf)
+        for(int i = 0; i < childThatGiveKey->keysNum; i++)
+            childThatGiveKey->children[i] - childThatGiveKey->children[i+1];
+
+    childThatGiveKey->keysNum--;
+}
+
+BTreeNode* BTreeNode::MergeIntoSingleNode(BTreeNode* firstNode, BTreeNode* secondNode) {
+    for(int i = 0; i < secondNode->keysNum; i++) {
+        firstNode->keys[i+firstNode->keysNum] = secondNode->keys[i];
+
+        if(!firstNode->isLeaf)
+            firstNode->children[i+firstNode->keysNum+1] = secondNode->children[i];
+    }
+
+    firstNode->keysNum += secondNode->keysNum;
+
+    // Stara wersja
+    // if(!firstNode->isLeaf)
+    //     firstNode->children[firstNode->keysNum] = secondNode->children[secondNode->keysNum+1];
+
+    if(!firstNode->isLeaf)
+        firstNode->children[firstNode->keysNum] = secondNode->children[secondNode->keysNum+1];
+
+    delete secondNode;
+    return firstNode;
+}
+
+int BTreeNode::FindKeyIndex(const int key) {
+    int index = -1;
+    for(int i = 0; i < keysNum; i++) {
+        if(keys[i] > key)
+            break;
+        else if(keys[i] == key)
+            index = i;
+    }
+    return index;
+}
+
+int BTreeNode::FindChildIndexThatCanHaveKey(const int key) {
+    int index = 0;
+    while (index < keysNum && keys[index] < key)
+        ++index;
+    return index;
+}
+
+int BTreeNode::FindChildIndex(BTreeNode* child) {
+    int i = 0;
+    int childLastKey = child->keys[child->keysNum - 1];
+    while(keys[i] < childLastKey && i < keysNum)
+        i++;
+    return i;
 }

@@ -23,6 +23,7 @@ int main() {
         case 'P': tree->Print(); break;
         case 'L': tree = new BTree(ScanValue()); tree->Load(); break;
         case 'S': tree->Save(); break;
+        case 'R': tree->Remove(ScanValue()); break;
         case 'X': quit = true; break;
         }
     }

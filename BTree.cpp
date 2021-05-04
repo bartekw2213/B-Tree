@@ -55,3 +55,22 @@ void BTree::Save() const {
     root->Save();
     std::cout << '\n';
 }
+
+void BTree::Remove(const int removedKey) {
+    if(root == nullptr)
+        return;
+
+    root->Remove(removedKey);
+
+    if(root->keysNum > 0) 
+        return;
+
+    BTreeNode* oldRootToRemove = root;
+
+    if(root->isLeaf)
+        root = nullptr;
+    else
+        root = root->children[0];
+
+    delete oldRootToRemove;
+}
