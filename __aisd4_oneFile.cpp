@@ -52,7 +52,7 @@ class BTreeNode {
         BTreeNode* Contains(const int key);
         void Save() const;
         void LoadNode();
-        void Remove(const int key);
+        void Remove(const int keyToDelete);
         void RemoveFromLeaf(const int removedKeyIndex);
         void RemoveFromInternalNode(const int removedKeyIndex);
         void MergeIntoSingleNode(int firstNodeIndex, int secondNodeIndex);
@@ -60,13 +60,13 @@ class BTreeNode {
         void AddNewKey(int newKey);
         void AddNewKeyToChild(int newKey);
         void MakeChildNoMinKeysNode(int childIndex);
-        int FindKeyIndex(int key);
-        int FindChildIndexThatCanHaveKey(int key);
-        int FindChildIndex(BTreeNode* child);
-        int GetPredecessor(const int keyIndex);
-        int GetSuccessor(const int keyIndex);
-        void BorrowLargestKeyFromSibling(BTreeNode* child, BTreeNode* sibling);
-        void BorrowSmallestKeyFromSibling(BTreeNode* child, BTreeNode* sibling);
+        int FindKeyIndex(int key) const;
+        int FindChildIndexThatCanHaveKey(int key) const;
+        int FindChildIndex(BTreeNode* child) const;
+        int GetPredecessor(const int keyIndex) const;
+        int GetSuccessor(const int keyIndex) const;
+        void BorrowLargestKeyFromSibling(BTreeNode* childThatGetKey, BTreeNode* childThatGiveKey);
+        void BorrowSmallestKeyFromSibling(BTreeNode* childThatGetKey, BTreeNode* childThatGiveKey);
     friend class BTree;
 };
 
@@ -265,14 +265,14 @@ void BTreeNode::RemoveFromInternalNode(const int removedKeyIndex) {
     }
 }
 
-int BTreeNode::GetPredecessor(const int keyIndex) {
+int BTreeNode::GetPredecessor(const int keyIndex) const {
     BTreeNode* current = children[keyIndex];
     while(!current->isLeaf)
         current = current->children[current->keysNum];
     return current->keys[keysNum - 1];
 }
 
-int BTreeNode::GetSuccessor(const int keyIndex) {
+int BTreeNode::GetSuccessor(const int keyIndex) const {
     BTreeNode* current = children[keyIndex+1];
     while(!current->isLeaf)
         current = current->children[0];
@@ -358,7 +358,7 @@ void BTreeNode::MergeIntoSingleNode(int firstNodeIndex, int secondNodeIndex) {
     delete secondNode;
 }
 
-int BTreeNode::FindKeyIndex(const int key) {
+int BTreeNode::FindKeyIndex(const int key) const {
     int index = -1;
     for(int i = 0; i < keysNum; i++) {
         if(keys[i] > key)
@@ -369,14 +369,14 @@ int BTreeNode::FindKeyIndex(const int key) {
     return index;
 }
 
-int BTreeNode::FindChildIndexThatCanHaveKey(const int key) {
+int BTreeNode::FindChildIndexThatCanHaveKey(const int key) const {
     int index = 0;
     while (index < keysNum && keys[index] < key)
         ++index;
     return index;
 }
 
-int BTreeNode::FindChildIndex(BTreeNode* child) {
+int BTreeNode::FindChildIndex(BTreeNode* child) const {
     int i = 0;
     int childLastKey = child->keys[child->keysNum - 1];
     while(keys[i] < childLastKey && i < keysNum)
@@ -391,15 +391,15 @@ class BTree {
     public:
         BTree(int order) : order(order), root(nullptr) { }
         ~BTree();
-        void Add(const int key);
+        void Add(const int newKey);
         void Search(const int key) const;
         void Print() const;
         void Load();
         void Save() const;
-        void Remove(const int key);
+        void Remove(const int removedKey);
     private:
-        void Add_FirstElement(const int key);
-        void Add_ToFullRoot(const int key);
+        void Add_FirstElement(const int newKey);
+        void Add_ToFullRoot(const int newKey);
 };
 
 BTree::~BTree() {
@@ -485,7 +485,6 @@ int ScanValue() {
 
 int main() {
     char a;
-    int value;
     bool quit = false;
     BTree* tree = nullptr;
     
