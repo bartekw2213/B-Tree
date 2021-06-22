@@ -1,0 +1,5 @@
+# B-Tree :evergreen_tree:
+
+Implementation of B-Tree structure. Definition from [Wikipedia](https://en.wikipedia.org/wiki/B-tree):
+
+> In [computer science](https://en.wikipedia.org/wiki/Computer_science), a **B-tree** is a self-balancing [tree data structure](https://en.wikipedia.org/wiki/Tree_data_structure) that maintains sorted data and allows searches, sequential access, insertions, and deletions in [logarithmic time](https://en.wikipedia.org/wiki/Logarithmic_time). The B-tree generalizes the [binary search tree](https://en.wikipedia.org/wiki/Binary_search_tree), allowing for nodes with more than two children.[[2\]](https://en.wikipedia.org/wiki/B-tree#cite_note-FOOTNOTEComer1979-2) Unlike other [self-balancing binary search trees](https://en.wikipedia.org/wiki/Self-balancing_binary_search_tree), the B-tree is well suited for storage systems that read and write relatively large blocks of data, such as disks. It is commonly used in [databases](https://en.wikipedia.org/wiki/Database) and [file systems](https://en.wikipedia.org/wiki/File_system).
